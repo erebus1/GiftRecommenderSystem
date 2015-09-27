@@ -1,0 +1,1 @@
+stop_list = ['new', 'brand', 'authorize', 'free', 'ship']

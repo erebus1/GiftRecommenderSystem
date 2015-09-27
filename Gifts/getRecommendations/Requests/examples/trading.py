@@ -132,7 +132,7 @@ def verifyAddItem(opts):
                         "ShippingServiceCost": "2.50"
                     }
                 },
-                "Site": "US"
+                "RS": "US"
             }
         }
 
@@ -185,7 +185,7 @@ def verifyAddItemErrorCodes(opts):
                         "ShippingServiceCost": "2.50"
                     }
                 },
-                "Site": "US"
+                "RS": "US"
             }
         }
 
