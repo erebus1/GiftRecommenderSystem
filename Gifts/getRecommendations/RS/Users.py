@@ -6,7 +6,7 @@ from Gifts.getRecommendations.TextClasterisation.nlp import clean_texts_simple
 from Gifts.getRecommendations.DB import DB
 
 
-def make_input_user(user_dict):
+def make_user_from_json(user_dict):
     """
     generate user
     :return: User
@@ -82,17 +82,20 @@ def process_user(user):
     """
     add similar categories
     add suggested categories
-    and save user in file
 
     :param user:
     :return:
     """
     get_categories_from_hobbies_and_categories_str(user)
     add_suggested_categories(user)
-    save_to_file(user, 'user.data')
 
 
 def add_user_to_db(user):
+    """
+
+    :param user:
+    :return: user_id
+    """
     client = DB.get_client()
     try:
         return client.GRS.users.insert_one(DBUser(user).__dict__).inserted_id
@@ -101,7 +104,7 @@ def add_user_to_db(user):
 
 
 def add_user(user_dict):
-    user = make_input_user(user_dict)
+    user = make_user_from_json(user_dict)
     process_user(user)
     return str(add_user_to_db(user))
 
