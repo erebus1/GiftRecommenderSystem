@@ -21,6 +21,7 @@ class User:
         assert type(already_gifted) == list
         assert type(age) == int
         assert type(sex) == str
+        assert sex == 'Male' or sex == 'Female'
 
         self.categories = {}
         self.user_type = user_type
