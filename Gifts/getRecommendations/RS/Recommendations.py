@@ -3,7 +3,6 @@ from Gifts.getRecommendations.Requests import findingApi
 from Gifts.getRecommendations.TextClasterisation import nlp
 from Gifts.getRecommendations.DB import DB
 from random import shuffle
-from Gifts.getRecommendations.additionalStaff import *
 
 
 def remove_similar(items, n):
@@ -112,6 +111,7 @@ def generate_list_for_user(user, item_filter):
 
 
 def generate_list(user_id, min_price=None, max_price=None):
+    user_id = ObjectId(user_id)
     item_filter = []
     if min_price is not None:
         item_filter.append({'name': 'MinPrice', 'value': min_price})
@@ -123,12 +123,9 @@ def generate_list(user_id, min_price=None, max_price=None):
     try:
         user = client.GRS.users.find_one({"_id": user_id})
         items = generate_list_for_user(user, item_filter)
-
         client.GRS.users.find_one_and_update({"_id": user_id}, {'$set': {'categories': user['categories'],
                                                                          'cur_page': 1,
                                                                          'items': items}})
-        gen_HTML([items[key] for key in items.keys()])
-
     finally:
         client.close()
 
@@ -175,16 +172,4 @@ def test():
             print key
 
 
-def update_categories():
-    client = DB.get_client()
-    users = client.GRS.users.find()
-    for user in users:
-        if type(user['categories']) == list:
-            new_categories = {}
-            for category in user['categories']:
-                new_categories.update({str(category['id']): {'votes': category['votes'],
-                                                             'rating': category['rating']}})
-                client.GRS.users.find_one_and_update({"_id": user['_id']}, {'$set': {'categories': new_categories}})
-
-    client.close()
 
