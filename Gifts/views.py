@@ -11,6 +11,17 @@ import json
 # Create your views here.
 
 
+def check_input(request, mandatory_fields, optional_fields=None):
+    if not optional_fields: optional_fields = []
+    for key in request.keys():
+        if key not in mandatory_fields and key not in optional_fields:
+            return {'result': 'Error', 'message': key + ' is not a valid field'}
+    for field in mandatory_fields:
+        if field not in request.keys():
+            return {'result': 'Error', 'message': field + ' do not presented'}
+    return {"result": "Success"}
+
+
 def add_user(request):
     if 'userProfile' not in request:
         return JsonResponse({'result': 'Error', 'message': 'userProfile do not presented'})
@@ -32,11 +43,13 @@ def add_user(request):
 
 
 def make_list(request):
-    for key in request['filter'].keys():
-        if key != "minPrice" and key != "maxPrice":
-            return JsonResponse({'result': 'Error', 'message': key + ' is not a valid filter field'})
-    if 'userId' not in request:
-        return JsonResponse({'result': 'Error', 'message': 'userId do not presented'})
+    result = check_input(request, ["userId"], ["filter"])
+    if result['result'] == "Error":
+        return JsonResponse(result)
+    if 'filter' in request:
+        result = check_input(request['filter'], [], ["minPrice", "maxPrice"])
+        if result['result'] == "Error":
+            return JsonResponse(result)
 
     min_price = None
     max_price = None
@@ -54,11 +67,9 @@ def make_list(request):
 
 
 def get_suggestions(request):
-    for key in request.keys():
-        if key != "page" and key != "userId":
-            return JsonResponse({'result': 'Error', 'message': key + ' is not a valid field'})
-    if 'userId' not in request:
-        return JsonResponse({'result': 'Error', 'message': 'userId do not presented'})
+    result = check_input(request, ["page", "userId"])
+    if result['result'] == "Error":
+        return JsonResponse(result)
     try:
         items = Recommendations.get_page(request['userId'], request['page'])
     except Exception as e:
@@ -74,7 +85,9 @@ def get_suggestions(request):
 
 
 def rate_item(request):
-    pass
+    result = check_input(request, ["userId", "itemId", "rating"])
+    if result['result'] == "Error":
+        return JsonResponse(result)
 
 
 @csrf_exempt

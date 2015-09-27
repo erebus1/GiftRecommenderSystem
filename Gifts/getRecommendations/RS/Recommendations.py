@@ -142,7 +142,7 @@ def rate(user_id, item_id, rating):
     category['rating'] = float(category['rating'] * category['votes'] + rating) / (category['votes'] + 1)
     category['votes'] += 1
     client.GRS.users.find_one_and_update({"_id": user_id},
-                                         {'$set': {'categories': user['categories']}})  # todo
+                                         {'$set': {'categories': user['categories']}})  # todo optimize
     client.close()
     print category
     return category_id, category
@@ -178,6 +178,13 @@ def test():
 
 
 def get_page(user_id, page_number):
+    """
+
+    :param user_id:
+    :param page_number:
+    :return: [] if wrong page, None if error, list of items if ok
+    """
+    # todo add items from RS
     assert type(page_number) == int
     if page_number <= 0:
         return []
@@ -192,7 +199,7 @@ def get_page(user_id, page_number):
             return []
         items = []
         # dict to list
-        for key in sorted(user['items'].keys()):
+        for key in sorted(user['items'].keys()):        # todo optimize
             user['items'][key].update({'itemId': key})
             items.append(user['items'][key])
         return items[page_size * page_number: page_size * (page_number + 1)]
