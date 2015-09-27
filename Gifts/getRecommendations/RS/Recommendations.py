@@ -4,6 +4,8 @@ from Gifts.getRecommendations.TextClasterisation import nlp
 from Gifts.getRecommendations.DB import DB
 from random import shuffle
 
+page_size = 100
+
 
 def remove_similar(items, n):
     """
@@ -122,9 +124,10 @@ def generate_list(user_id, min_price=None, max_price=None):
 
     try:
         user = client.GRS.users.find_one({"_id": user_id})
+        assert user is not None
         items = generate_list_for_user(user, item_filter)
         client.GRS.users.find_one_and_update({"_id": user_id}, {'$set': {'categories': user['categories'],
-                                                                         'cur_page': 1,
+                                                                         'cur_page': 0,
                                                                          'items': items}})
     finally:
         client.close()
@@ -133,6 +136,7 @@ def generate_list(user_id, min_price=None, max_price=None):
 def rate(user_id, item_id, rating):
     client = DB.get_client()
     user = client.GRS.users.find_one({"_id": user_id})
+    assert user is not None
     category_id = user['items'][str(item_id)]['categoryID']
     category = user['categories'][category_id]
     category['rating'] = float(category['rating'] * category['votes'] + rating) / (category['votes'] + 1)
@@ -166,10 +170,35 @@ def test():
     id = ObjectId('5606cdd3782064504346d215')
     rate_item(id, "231681663194", -5)
     client = DB.get_client()
-    user = client.GRS.users.find_one({"_id":id})
+    user = client.GRS.users.find_one({"_id": id})
     for key in user['items'].keys():
         if user['items'][key]['categoryID'] == "48947":
             print key
+    client.close()
+
+
+def get_page(user_id, page_number):
+    assert type(page_number) == int
+    if page_number <= 0:
+        return []
+
+    user_id = ObjectId(user_id)
+    client = None
+    try:
+        client = DB.get_client()
+        user = client.GRS.users.find_one({"_id": user_id})
+        assert user is not None
+        if page_number * page_size > user['items']:
+            return []
+        items = []
+        # dict to list
+        for key in sorted(user['items'].keys()):
+            user['items'][key].update({'itemId': key})
+            items.append(user['items'][key])
+        return items[page_size * page_number: page_size * (page_number + 1)]
+    finally:
+        client.close()
+
 
 
 

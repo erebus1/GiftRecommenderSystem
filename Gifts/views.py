@@ -53,12 +53,24 @@ def make_list(request):
     return JsonResponse({'result': 'Success'})
 
 
-
-
-
-
 def get_suggestions(request):
-    pass
+    for key in request.keys():
+        if key != "page" and key != "userId":
+            return JsonResponse({'result': 'Error', 'message': key + ' is not a valid field'})
+    if 'userId' not in request:
+        return JsonResponse({'result': 'Error', 'message': 'userId do not presented'})
+    try:
+        items = Recommendations.get_page(request['userId'], request['page'])
+    except Exception as e:
+        print e
+        return JsonResponse({'result': 'Error', 'message': 'error during getting list'})
+    if items:
+        request = {'result': 'Success', 'data': items}
+    elif items == []:
+        request = {'result': 'Error', 'message': 'page out of range'}
+    else:
+        request = {'result': 'Error', 'message': 'error during getting list'}
+    return JsonResponse(request)
 
 
 def rate_item(request):
