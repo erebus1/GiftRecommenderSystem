@@ -135,29 +135,33 @@ def generate_list(user_id, min_price=None, max_price=None):
 
 def rate(user_id, item_id, rating):
     client = DB.get_client()
-    user = client.GRS.users.find_one({"_id": user_id})
-    assert user is not None
-    category_id = user['items'][str(item_id)]['categoryID']
-    category = user['categories'][category_id]
-    category['rating'] = float(category['rating'] * category['votes'] + rating) / (category['votes'] + 1)
-    category['votes'] += 1
-    client.GRS.users.find_one_and_update({"_id": user_id},
-                                         {'$set': {'categories': user['categories']}})  # todo optimize
-    client.close()
+    try:
+        user = client.GRS.users.find_one({"_id": user_id})
+        assert user is not None
+        category_id = user['items'][str(item_id)]['categoryID']
+        category = user['categories'][category_id]
+        category['rating'] = float(category['rating'] * category['votes'] + rating) / (category['votes'] + 1)
+        category['votes'] += 1
+        client.GRS.users.find_one_and_update({"_id": user_id},
+                                             {'$set': {'categories': user['categories']}})  # todo optimize
+    finally:
+        client.close()
     print category
     return category_id, category
 
 
 def remove_all_items_from_category(user_id, category_id):
     client = DB.get_client()
-    user = client.GRS.users.find_one({"_id": user_id})
-    items = user['items']
-    keys = items.keys()
-    for key in keys:  # remove all items form specified category
-        if items[key]['categoryID'] == category_id:
-            items.__delitem__(key)
-    client.GRS.users.find_one_and_update({"_id": user_id}, {'$set': {'items': items}})
-    client.close()
+    try:
+        user = client.GRS.users.find_one({"_id": user_id})
+        items = user['items']
+        keys = items.keys()
+        for key in keys:  # remove all items form specified category
+            if items[key]['categoryID'] == category_id:
+                items.__delitem__(key)
+        client.GRS.users.find_one_and_update({"_id": user_id}, {'$set': {'items': items}})
+    finally:
+        client.close()
 
 
 def rate_and_remove(user_id, item_id, rating):
