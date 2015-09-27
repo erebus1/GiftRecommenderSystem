@@ -4,7 +4,7 @@ from Gifts.getRecommendations.TextClasterisation import nlp
 from Gifts.getRecommendations.DB import DB
 from random import shuffle
 
-page_size = 100
+page_size = 100  # todo in constant file
 
 
 def remove_similar(items, n):
@@ -29,6 +29,12 @@ def remove_similar(items, n):
 
 
 def convert_list_to_dict(items, key):
+    """
+    convert list of dict to dict
+    :param items: list of dict
+    :param key: which field of dict make key
+    :return: dict, where keys are items[:][key]
+    """
     new_dict = {}
     for item in items:
         cur_key = item[key]
@@ -39,10 +45,10 @@ def convert_list_to_dict(items, key):
 
 def get_list_from_category(category_id, item_filter):
     """
-
+    find items from specified category in ebay by applying filter
     :param category_id:
     :param item_filter:
-    :return: up to 30 items
+    :return: up to 30 items  // should be clarify
     """
     items = []
 
@@ -52,7 +58,7 @@ def get_list_from_category(category_id, item_filter):
                                             {'categoryId': category_id,
                                              'paginationInput': {'entriesPerPage': 100},
                                              'itemFilter': item_filter})
-
+#todo empty response
     for item in response['searchResult']['item']:
         try:
             items.append({'title': item['title'],
@@ -76,6 +82,13 @@ def get_list_from_category(category_id, item_filter):
 
 
 def choose_categories(user, max_categories=10):
+    """
+    choose max_categories from user.categories
+    60% top, 40% unseen
+    :param user:
+    :param max_categories:
+    :return:
+    """
     assert max_categories > 5
     items = []
     count = 0
@@ -103,6 +116,13 @@ def choose_categories(user, max_categories=10):
 
 
 def generate_list_for_user(user, item_filter):
+    """
+    generate user.items - suggested items
+
+    :param user:
+    :param item_filter:
+    :return:
+    """
     item_filter.append({'name': 'Condition', 'value': 'New'})
     item_filter.append({'name': 'ListingType', 'value': 'FixedPrice'})
     categories_id = choose_categories(user)
@@ -113,6 +133,14 @@ def generate_list_for_user(user, item_filter):
 
 
 def generate_list(user_id, min_price=None, max_price=None):
+    """
+    :use generate_list_for_user
+    generate list of suggested items for user
+    :param user_id:
+    :param min_price:
+    :param max_price:
+    :return:
+    """
     user_id = ObjectId(user_id)
     item_filter = []
     if min_price is not None:
@@ -134,6 +162,13 @@ def generate_list(user_id, min_price=None, max_price=None):
 
 
 def rate(user_id, item_id, rating):
+    """
+    change rating of category of item
+    :param user_id:
+    :param item_id:
+    :param rating:
+    :return:
+    """
     client = DB.get_client()
     try:
         user = client.GRS.users.find_one({"_id": user_id})
@@ -165,26 +200,24 @@ def remove_all_items_from_category(user_id, category_id):
 
 
 def rate_and_remove(user_id, item_id, rating):
+    """
+    change rating of category of item and remove items, where category rating <=0 and votes >=3
+    :param user_id:
+    :param item_id:
+    :param rating:
+    :return:
+    """
     user_id = ObjectId(user_id)
     category_id, category = rate(user_id, item_id, rating)
     if category['votes'] >= 3 and category['rating'] <= 0:
         remove_all_items_from_category(user_id, category_id)
 
 
-def test():
-    id = ObjectId('5606cdd3782064504346d215')
-    rate_and_remove(id, "231681663194", -5)
-    client = DB.get_client()
-    user = client.GRS.users.find_one({"_id": id})
-    for key in user['items'].keys():
-        if user['items'][key]['categoryID'] == "48947":
-            print key
-    client.close()
 
 
 def get_page(user_id, page_number):
     """
-
+    return items from page
     :param user_id:
     :param page_number:
     :return: [] if wrong page, None if error, list of items if ok
