@@ -88,6 +88,12 @@ def rate_item(request):
     result = check_input(request, ["userId", "itemId", "rating"])
     if result['result'] == "Error":
         return JsonResponse(result)
+    try:
+        Recommendations.rate_and_remove(request['userId'], request['itemId'], request['rating'])
+    except Exception as e:
+        print e
+        return JsonResponse({"result": "Error", "message": "error during rating item"})
+    return JsonResponse({"result": "Success"})
 
 
 @csrf_exempt

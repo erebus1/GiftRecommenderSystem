@@ -160,7 +160,8 @@ def remove_all_items_from_category(user_id, category_id):
     client.close()
 
 
-def rate_item(user_id, item_id, rating):
+def rate_and_remove(user_id, item_id, rating):
+    user_id = ObjectId(user_id)
     category_id, category = rate(user_id, item_id, rating)
     if category['votes'] >= 3 and category['rating'] <= 0:
         remove_all_items_from_category(user_id, category_id)
@@ -168,7 +169,7 @@ def rate_item(user_id, item_id, rating):
 
 def test():
     id = ObjectId('5606cdd3782064504346d215')
-    rate_item(id, "231681663194", -5)
+    rate_and_remove(id, "231681663194", -5)
     client = DB.get_client()
     user = client.GRS.users.find_one({"_id": id})
     for key in user['items'].keys():
