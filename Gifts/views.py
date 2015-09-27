@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from getRecommendations import Categories
 # Create your views here.
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -25,13 +24,21 @@ def check_input(request, mandatory_fields, optional_fields=None):
 def add_user(request):
     if 'userProfile' not in request:
         return JsonResponse({'result': 'Error', 'message': 'userProfile do not presented'})
+
+    result = check_input(request['userProfile'], ["sex", "age", "hobbies", "userType"],
+                         ["alreadyGifted", "lovedCategories"])
+    if result['result'] == "Error":
+        return JsonResponse(result)
+
     if request['userProfile']['sex'] not in ['Female', 'Male']:
         return JsonResponse({'result': 'Error', 'message': request['userProfile']['sex'] +
                                                            ' is not a valid sex'})
+
     if 'alreadyGifted' not in request['userProfile']:
         request['userProfile']['alreadyGifted'] = []
     if 'lovedCategories' not in request['userProfile']:
         request['userProfile']['lovedCategories'] = []
+
     try:
         user_id = Users.add_user(request['userProfile'])
 
@@ -99,7 +106,6 @@ def rate_item(request):
 @csrf_exempt
 def home(request):
     if request.method == "POST":
-        print request
         try:
             request_dict = json.loads(request.body)
             print(request_dict)
