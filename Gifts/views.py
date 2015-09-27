@@ -14,6 +14,9 @@ import json
 def add_user(request):
     if 'userProfile' not in request:
         return JsonResponse({'result': 'error', 'message': 'userProfile do not presented'})
+    if request['userProfile']['sex'] not in ['Female', 'Male']:
+        return JsonResponse({'result': 'error', 'message': request['userProfile']['sex'] +
+                                                           ' is not a valid sex'})
     if 'alreadyGifted' not in request['userProfile']:
         request['userProfile']['alreadyGifted'] = []
     if 'lovedCategories' not in request['userProfile']:
