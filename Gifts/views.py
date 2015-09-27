@@ -4,18 +4,48 @@ from getRecommendations import Categories
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from Constants import *
 
 # Create your views here.
+
+def add_user(request):
+    pass
+
+
+def use_filter(request):
+    pass
+
+
+def get_suggestions(request):
+    pass
+
+
+def rate_item(request):
+    pass
+
+
 @csrf_exempt
 def home(request):
-    hobby = request.GET.get('hobby', '')
     if request.POST:
         print request
+        try:
+            request_dict = dict(request.POST)
+            if 'task' not in request_dict:
+                return error_response
+            if request_dict['task'] == 'add user':
+                return add_user(request_dict['data'])
+            if request_dict['task'] == 'use filter':
+                return use_filter(request_dict['data'])
+            if request_dict['task'] == 'get suggestions':
+                return get_suggestions(request_dict['data'])
+            if request_dict['task'] == 'rate item':
+                return rate_item(request_dict['data'])
+        except:
+            return error_response
+
+        return JsonResponse({'result': 'success', 'response': [{'foo': 'bar'}]})
     return HttpResponse('''
-        <form action="recommendations">
-            <input type="text" name="hobby" value="What is your hobby" />
-            <input type="submit" value="Get recommendation">
-        </form>
+        <h1>Welcome on GRS</h1>
     ''')
 
 
