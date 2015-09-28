@@ -5,7 +5,7 @@ from optparse import OptionParser
 
 sys.path.insert(0, '%s/../' % os.path.dirname(__file__))
 
-from common import dump
+from Gifts.getRecommendations.common import dump
 
 import ebaysdk
 from ebaysdk.utils import getNodeText

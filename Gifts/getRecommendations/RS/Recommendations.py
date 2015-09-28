@@ -59,6 +59,8 @@ def get_list_from_category(category_id, item_filter):
                                              'paginationInput': {'entriesPerPage': 100},
                                              'itemFilter': item_filter})
 #todo empty response
+    if 'item' not in response['searchResult']:  # if empty response
+        return []
     for item in response['searchResult']['item']:
         try:
             items.append({'title': item['title'],
