@@ -110,8 +110,8 @@ def play_DB():
 
 def main():
     categories = get_categories_from_api()
-    add_child_list(categories)
-    clean_categories_data(categories)
+    categories = add_child_list(categories)
+    categories = clean_categories_data(categories)
     add_categories_to_db(categories)
     add_index()
 
