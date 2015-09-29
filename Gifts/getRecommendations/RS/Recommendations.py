@@ -53,7 +53,7 @@ def get_list_from_category(category_id, item_filter):
     items = []
 
     print type(category_id)
-    print item_filter
+    # print item_filter
     response = findingApi.get_list_of_items("findItemsAdvanced",
                                             {'categoryId': category_id,
                                              'paginationInput': {'entriesPerPage': 100},
@@ -67,7 +67,7 @@ def get_list_from_category(category_id, item_filter):
                           'galleryURL': item['galleryURL'], 'itemURL': item['viewItemURL'],
                           'price': item['sellingStatus']['convertedCurrentPrice'],
                           'categoryID': category_id, 'itemID': item['itemId']})
-            print item
+            # print item
         except Exception as e:
             print e.message
 
@@ -183,7 +183,7 @@ def rate(user_id, item_id, rating):
                                              {'$set': {'categories': user['categories']}})  # todo optimize
     finally:
         client.close()
-    print category
+    # print category
     return category_id, category
 
 
@@ -225,8 +225,6 @@ def get_page(user_id, page_number):
     :return: [] if wrong page, None if error, list of items if ok
     """
     # todo add items from RS
-    print page_number
-    print type(page_number)
     assert type(page_number) == int
     if page_number <= 0:
         return []
@@ -239,7 +237,6 @@ def get_page(user_id, page_number):
         assert user is not None
         if (page_number - 1) * page_size >= len(user['items'].keys()):
             return []
-        print 2
         items = []
         # dict to list
         for key in sorted(user['items'].keys()):        # todo optimize
