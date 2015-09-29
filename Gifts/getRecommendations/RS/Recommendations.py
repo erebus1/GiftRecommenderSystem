@@ -52,7 +52,7 @@ def get_list_from_category(category_id, item_filter):
     """
     items = []
 
-    print type(category_id)
+    # print type(category_id)
     # print item_filter
     response = findingApi.get_list_of_items("findItemsAdvanced",
                                             {'categoryId': category_id,
