@@ -10,14 +10,16 @@ def get_categories_from_api():
     categories = tradingApi.run("GetCategories", {"CategorySiteID": 0, "DetailLevel": "ReturnAll"})
     return categories
 
-
 def add_child_list(categories):
     """
     add child list to categories and save to file
     :return:
     """
 
+    progress = 0
     for category_parent in categories:
+        progress += 1
+        print progress / float(len(categories))
         category_parent['ChildID'] = []
         for category_child in categories:
             if category_child['CategoryID'] != category_child['CategoryParentID']:
@@ -106,8 +108,8 @@ def play_DB():
 
 def main():
     categories = get_categories_from_api()
-    clean_categories_data(categories)
     add_child_list(categories)
+    clean_categories_data(categories)
     add_categories_to_db(categories)
     add_index()
 
