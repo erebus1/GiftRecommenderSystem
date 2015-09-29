@@ -1,6 +1,4 @@
-import pymongo
 from Gifts.getRecommendations.Requests import tradingApi
-from Gifts.getRecommendations.additionalStaff import *
 from pymongo import MongoClient
 
 
@@ -10,15 +8,14 @@ def get_categories_from_api():
     :return:
     """
     categories = tradingApi.run("GetCategories", {"CategorySiteID": 0, "DetailLevel": "ReturnAll"})
-    save_to_file(categories, "categories.data")
+    return categories
 
 
-def add_child_list():
+def add_child_list(categories):
     """
     add child list to categories and save to file
     :return:
     """
-    categories = extract_from_file("categories.data")['CategoryArray']['Category']
 
     for category_parent in categories:
         category_parent['ChildID'] = []
@@ -27,17 +24,15 @@ def add_child_list():
                 if category_child['CategoryParentID'] == category_parent['CategoryID']:
                     category_parent['ChildID'].append(category_child['CategoryID'])
 
-    save_to_file(categories, "new_categories.data")
+    return categories
 
-
-def clean_categories_data():
+def clean_categories_data(categories):
     """
     convert string to other format
     remove useless fields
 
     :return:
     """
-    categories = extract_from_file("new_categories.data")
     for category in categories:
         if 'AutoPayEnabled' in category:
             category.__delitem__("AutoPayEnabled")
@@ -60,15 +55,13 @@ def clean_categories_data():
             temp.append(int(subCategory))
         category['ChildID'] = temp
 
-    save_to_file(categories, 'new_categories_cleaned.data')
+    return categories
 
-
-def add_categories_to_db():
+def add_categories_to_db(categories):
     """
     extract categories from file and write in db
     :return:
     """
-    categories = extract_from_file("new_categories_cleaned.data")
 
     client = MongoClient('localhost', 27017)
 
@@ -112,10 +105,10 @@ def play_DB():
 
 
 def main():
-    get_categories_from_api()
-    clean_categories_data()
-    add_child_list()
-    add_categories_to_db()
+    categories = get_categories_from_api()
+    clean_categories_data(categories)
+    add_child_list(categories)
+    add_categories_to_db(categories)
     add_index()
 
     play_DB()
