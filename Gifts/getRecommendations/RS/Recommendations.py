@@ -225,6 +225,8 @@ def get_page(user_id, page_number):
     :return: [] if wrong page, None if error, list of items if ok
     """
     # todo add items from RS
+    print page_number
+    print type(page_number)
     assert type(page_number) == int
     if page_number <= 0:
         return []
@@ -235,14 +237,15 @@ def get_page(user_id, page_number):
         client = DB.get_client()
         user = client.GRS.users.find_one({"_id": user_id})
         assert user is not None
-        if page_number * page_size > user['items']:
+        if (page_number - 1) * page_size >= len(user['items'].keys()):
             return []
+        print 2
         items = []
         # dict to list
         for key in sorted(user['items'].keys()):        # todo optimize
             user['items'][key].update({'itemId': key})
             items.append(user['items'][key])
-        return items[page_size * page_number: page_size * (page_number + 1)]
+        return items[page_size * (page_number - 1): page_size * page_number]
     finally:
         client.close()
 
