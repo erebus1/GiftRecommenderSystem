@@ -15,6 +15,7 @@ def add_child_list(categories):
     add child list to categories and save to file
     :return:
     """
+    categories = categories['CategoryArray']['Category']
 
     progress = 0
     for category_parent in categories:
@@ -27,6 +28,7 @@ def add_child_list(categories):
                     category_parent['ChildID'].append(category_child['CategoryID'])
 
     return categories
+
 
 def clean_categories_data(categories):
     """
