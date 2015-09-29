@@ -5,4 +5,4 @@ requests==2.3.0
 nltk
 pymongo==3.0.3
 numpy
-gensim==0.12.2
+gensim
