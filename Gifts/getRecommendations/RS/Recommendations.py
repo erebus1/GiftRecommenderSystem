@@ -1,4 +1,4 @@
-from bson import ObjectId
+from bson.objectid import ObjectId
 from Gifts.getRecommendations.Requests import findingApi
 from Gifts.getRecommendations.TextClasterisation import nlp
 from Gifts.getRecommendations.DB import DB
