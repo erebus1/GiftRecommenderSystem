@@ -28,6 +28,7 @@ def remove_similar(items, n):
     return new_items
 
 
+
 def convert_list_to_dict(items, key):
     """
     convert list of dict to dict
@@ -215,6 +216,16 @@ def rate_and_remove(user_id, item_id, rating):
         remove_all_items_from_category(user_id, category_id)
 
 
+
+def get_number_of_pages(user_id):
+    user_id = ObjectId(user_id)
+    client = DB.get_client()
+    try:
+        user = client.GRS.users.find_one({"_id": user_id})
+        assert user is not None
+        return len(user['items'].keys()) / 100.0
+    finally:
+        client.close()
 
 
 def get_page(user_id, page_number):
