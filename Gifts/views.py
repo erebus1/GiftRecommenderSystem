@@ -67,10 +67,11 @@ def make_list(request):
             max_price = request['filter']['maxPrice']
     try:
         Recommendations.generate_list(request['userId'], min_price, max_price)
+        number_of_pages = Recommendations.get_number_of_pages(request['userId'])
     except Exception as e:
         print e
         return JsonResponse({'result': 'error', 'message': 'error while making list'})
-    return JsonResponse({'result': 'Success'})
+    return JsonResponse({'result': 'Success', 'data': {'numberOfPages': number_of_pages}})
 
 
 def get_suggestions(request):
@@ -79,11 +80,12 @@ def get_suggestions(request):
         return JsonResponse(result)
     try:
         items = Recommendations.get_page(request['userId'], request['page'])
+        number_of_pages = Recommendations.get_number_of_pages(request['userId'])
     except Exception as e:
         print e
         return JsonResponse({'result': 'Error', 'message': 'error during getting list'})
     if items:
-        request = {'result': 'Success', 'data': items}
+        request = {'result': 'Success', 'data': {'items': items, "numberOfPages": number_of_pages}}
     elif items == []:
         request = {'result': 'Error', 'message': 'page out of range'}
     else:
@@ -97,10 +99,12 @@ def rate_item(request):
         return JsonResponse(result)
     try:
         Recommendations.rate_and_remove(request['userId'], request['itemId'], request['rating'])
+        number_of_pages = Recommendations.get_number_of_pages(request['userId'])
+
     except Exception as e:
         print e
         return JsonResponse({"result": "Error", "message": "error during rating item"})
-    return JsonResponse({"result": "Success"})
+    return JsonResponse({"result": "Success", 'data': {'numberOfPages': number_of_pages}})
 
 
 @csrf_exempt
