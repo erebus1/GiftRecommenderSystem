@@ -1,4 +1,5 @@
 from bson.objectid import ObjectId
+import math
 from Gifts.getRecommendations.Requests import findingApi
 from Gifts.getRecommendations.TextClasterisation import nlp
 from Gifts.getRecommendations.DB import DB
@@ -223,7 +224,7 @@ def get_number_of_pages(user_id):
     try:
         user = client.GRS.users.find_one({"_id": user_id})
         assert user is not None
-        return len(user['items'].keys()) / 100.0
+        return math.ceil(len(user['items'].keys()) / 100.0)
     finally:
         client.close()
 
